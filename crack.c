@@ -8,16 +8,16 @@
 #include "fileutil.h"
 #endif
 
-#define PASS_LEN 50     // Maximum length any password will be.
-#define HASH_LEN 33     // Length of hash plus one for null.
-#define CAPACITY 70     // for loadFileAA
+#define PASS_LEN 50 // Maximum length any password will be.
+#define HASH_LEN 33 // Length of hash plus one for null.
+#define CAPACITY 70 // for loadFileAA
 
 //// CHALLENGE1: Sort the hashes using qsort.
 // from qsort lecture video
-int alphabetic(const void * a, const void *b) {
-    char ** aa = (char **)a;
-    char ** bb = (char **)b;
-    return strcmp(*aa, *bb);
+int alphabetic(const void *a, const void *b) {
+  char **aa = (char **)a;
+  char **bb = (char **)b;
+  return strcmp(*aa, *bb);
 }
 
 // TODO: Read the hashes file into an array.
@@ -25,101 +25,110 @@ int alphabetic(const void * a, const void *b) {
 //   Use the loadFile function from fileutil.c
 //   Uncomment the appropriate statement.
 
-//copied from prev assignment (lv 11)
-    char **loadFileAA(char *filename, int *size) {
-        // <-- THIS ONEEEEE!!
-        //Open the file for reading.
-        FILE *in = fopen(filename, "r");
-        if (!in) {
-            perror("Can't open file");
-            exit(1);
-        }
-        //Make the initial allocation of CAPACITY strings:
-        //char ** arr = malloc(CAPACITY * sizeof(char *)).
-        char **arr = malloc(CAPACITY * sizeof(char *));
+// copied from prev assignment (lv 11)
+char **loadFile(char *filename, int *size) {
+  // <-- THIS ONEEEEE!!
+  // Open the file for reading.
+  FILE *in = fopen(filename, "r");
+  if (!in) {
+    perror("Can't open file");
+    exit(1);
+  }
+  // Make the initial allocation of CAPACITY strings:
+  // char ** arr = malloc(CAPACITY * sizeof(char *)).
+  char **arr = malloc(CAPACITY * sizeof(char *));
 
-        //Set the SIZE to 0
-        *size = 0;
-        //initialize other var
-        int capacity = CAPACITY;
-        char buffer[1000];
+  // Set the SIZE to 0
+  *size = 0;
+  // initialize other var
+  int capacity = CAPACITY;
+  char buffer[1000];
 
-        //Start looping through the file
-        //Use fgets to read the line into a buffer string
-        while (fgets(buffer, 1000, in) != NULL) {
-            //while fgets is not equal to end of file
+  // Start looping through the file
+  // Use fgets to read the line into a buffer string
+  while (fgets(buffer, 1000, in) != NULL) {
+    // while fgets is not equal to end of file
 
-            //Check if the array needs extending. If so, increase the CAPACITY, then use realloc to extend.
-            if (*size >= capacity) {
-                //capacity reached?
-                capacity *= 2; // then extend the capaccity x2
-                arr = realloc(arr, capacity * sizeof(char *)); // extends array to new capacity
-            }
-            //Trim off the newline character.
-            int length = strlen(buffer);
-            buffer[length - 1] = '\0';
-
-            //Use strlen to determine the length of the buffer, then use malloc to a string of this
-            //length, plus 1 for the null character.
-            length = strlen(buffer);
-            arr[*size] = malloc((length + 1) * sizeof(char));
-
-            //Copy the buffer into the array at index SIZE using strcpy.
-            strcpy(arr[*size], buffer);
-
-            //Increment the SIZE.
-            (*size)++;
-        }
-        //close when end of file is reached
-        fclose(in);
-        //return pointer to arr
-        return arr;
+    // Check if the array needs extending. If so, increase the CAPACITY, then
+    // use realloc to extend.
+    if (*size >= capacity) {
+      // capacity reached?
+      capacity *= 2;                                 // then extend the capaccity x2
+      arr = realloc(arr, capacity * sizeof(char *)); // extends array to new capacity
     }
+    // Trim off the newline character.
+    int length = strlen(buffer);
+    buffer[length - 1] = '\0';
 
-int main(int argc, char *argv[])
-{
-    if (argc < 3)
-    {
-        printf("Usage: %s hash_file dictionary_file\n", argv[0]);
-        exit(1);
-    }
+    // Use strlen to determine the length of the buffer, then use malloc to a
+    // string of this length, plus 1 for the null character.
+    length = strlen(buffer);
+    arr[*size] = malloc((length + 1) * sizeof(char));
 
-//   Uncomment the appropriate statement.
+    // Copy the buffer into the array at index SIZE using strcpy.
+    strcpy(arr[*size], buffer);
+
+    // Increment the SIZE.
+    (*size)++;
+  }
+  // close when end of file is reached
+  fclose(in);
+  // return pointer to arr
+  return arr;
+}
+
+int main(int argc, char *argv[]) {
+  if (argc < 3) {
+    printf("Usage: %s hash_file dictionary_file\n", argv[0]);
+    exit(1);
+  }
+
+  // TODO === (DONE) =====
+  // Uncomment the appropriate statement.
   int size;
-    //char (*hashes)[HASH_LEN] = loadFile(argv[1], &size);
-    char **hashes = loadFileAA(argv[1], &size);
+  // char (*hashes)[HASH_LEN] = loadFile(argv[1], &size);
+  char **hashes = loadFile(argv[1], &size);
 
-    // ==CHALLENGE1: Sort the hashes using qsort.==
-    qsort(hashes, size, sizeof(char *), alphabetic);
+  // ==CHALLENGE1: Sort the hashes using qsort.==
+  qsort(hashes, size, sizeof(char *), alphabetic);
 
-        // TODO
-        // Open the password file for reading.
-        FILE *in = fopen(argv[2], "r");
-        if (!in) {
-            perror("Can't open file");
-            exit(1);
-        }
-        int count = 0;
-        // TODO
-        // For each password, hash it, then use the array search
-        // function from fileutil.h to find the hash.
-        // If you find it, display the password and the hash.
-        // Keep track of how many hashes were found.
+  // TODO === (DONE) =====
+  // Open the password file for reading.
+  FILE *in = fopen(argv[2], "r");
+  if (!in) {
+    perror("Can't open file");
+    exit(1);
+  }
+  // TODO (all mostly from crack.c -> crack2 but just edited when appopriate)
+  char password[PASS_LEN];
+  int crackedAmt = 0;
+  // For each password, hash it, then use the array search
+  while (fgets(password, sizeof(password), in)) {
+    // Remove the newline from the line
+    password[strcspn(password, "\n")] = '\0';
+    // hash it
+    char *hash = md5(password, strlen(password));
+    // function from fileutil.h to find the hash.
+    char *found = substringSearchAA(hash, hashes, size);
+    // If you find it, display the password and the hash.
+    // Keep track of how many hashes were found.
+    if (found != NULL) {
+      printf("%s %s\n", hash, password);
+      crackedAmt++;
+    }
+  }
 
-        // CHALLENGE1: Use binary search instead of linear search.
+  // CHALLENGE1: Use binary search instead of linear search.
 
-        // TODO
-        // When done with the file:
-        //   Close the file
-            fclose(in);
-        //   Display the number of hashes found.
-        printf("Cracked %d hashes\n", count);
-
-        // Free up memory.
-        // Free the memory used by the array(from lv 11)
-        for (int i = 0; i < size; i++) {
-            //for loop to free up each string to prevent memory leaks
-            free(hashes[i]);
-        }
-        free(hashes);
+  // TODO === (DONE) =====
+  // When done with the file:
+  //   Close the file
+  fclose(in);
+  //   Display the number of hashes found.
+  printf("Cracked %d hashes\n", crackedAmt);
+  // Free the memory used by the array(from lv 11)
+  for (int i = 0; i < size; i++) { // for loop to free up each string to prevent 									//memory leaks
+    free(hashes[i]);
+  }
+  free(hashes);
 }
