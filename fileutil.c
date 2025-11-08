@@ -20,14 +20,14 @@
 // entries in the array (not the total array length).
 
 //CAPACITY value between 10-100
-#define CAPACITY 67
+#define CAPACITY 70
+
 
 char **loadFileAA(char *filename, int *size) {
     // <-- THIS ONEEEEE!!
     //Open the file for reading.
     FILE *in = fopen(filename, "r");
-    if (!in)
-    {
+    if (!in) {
         perror("Can't open file");
         exit(1);
     }
@@ -75,11 +75,9 @@ char **loadFileAA(char *filename, int *size) {
 
 
 //=======================================================
-char (*loadFile2D(char *filename, int *size))[COLS]
-{
+char (*loadFile2D(char *filename, int *size))[COLS] {
     FILE *in = fopen(filename, "r");
-    if (!in)
-    {
+    if (!in) {
         perror("Can't open file");
         exit(1);
     }
@@ -103,40 +101,44 @@ char (*loadFile2D(char *filename, int *size))[COLS]
 // Return the found string or NULL if not found.
 
 //=======================================================
-char * substringSearchAA(char *target, char **lines, int size) // <----
+char *substringSearchAA(char *target, char **lines, int size) //This is now a LinearSearch
 {
-    //Search the given array for a target string. Both a pointer to the array-of-strings and its size (the number of valid entires) must be passed in.
-    //Use strstr to locate the line that contains the target string. Returns the found string, or NULL if not found. If there is more than one matching string, return the first one found.
+    //Search the given array for a target string. Both a pointer to the array-of-strings and its size (the number of valid entries) must be passed in.
+    //Use strcmp to locate the line that contains the target string. Returns the found string, or NULL if not found. If there is more than one matching string, return the first one found.
 
-    for (int i = 0; i < size; i++) { // loop thru all strings
-        //strstr to locate the line that contains the target string
-        if (strstr(lines[i], target) != NULL)
-            {
-            return lines[i]; //return found first string
+    //linear search:
+    for (int i = 0; i < size; i++) {
+        // loop through all strings
+        //use strcmp to locate the line that contains the target string
+        //EX:
+        //if (*aa == *bb) { // if they are equal return 0
+        //    return 0;
+        if (strcmp(lines[i], target) == 0) {
+            //used strcmp as discussed in the video to compare each hash exactly
+            return lines[i]; //return string
         }
-    }//didnt find target?
-    return NULL;//return NULL
+    } //didnt find target?
+    return NULL; //return NULL
 }
 
-char * substringSearch2D(char *target, char (*lines)[COLS], int size) //IGNORE
+//=======================================================
+char *substringSearch2D(char *target, char (*lines)[COLS], int size) //IGNORE
 {
-
     return NULL;
 }
 
 //=======================================================
 // Free the memory used by the array
-void freeAA(char ** arr, int size) // <----
+void freeAA(char **arr, int size) // <----
 {
     // Free the memory used by the array
-     for (int i = 0; i < size; i++) { //for loop to free up each string to prevent memory leaks
+    for (int i = 0; i < size; i++) {
+        //for loop to free up each string to prevent memory leaks
         free(arr[i]);
     }
     free(arr);
-
 }
 
 void free2D(char (*arr)[COLS]) //IGNORE
 {
-
 }
